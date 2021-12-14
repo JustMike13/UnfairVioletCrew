@@ -72,9 +72,7 @@ module.exports.followUser = async (args, context) => {
   const userFollowed = args.id;
 
   var exists = await db.Follow.findOne({ where: {userFollowing, userFollowed}});
-  console.log("aici incepe");
-  console.log(exists);
-  console.log("aici se termina");
+  
   if(exists != null){
     return { token : "Allready following user"};
   }
