@@ -5,11 +5,13 @@ const loginHandler = require('../repository/login');
 const createUserInputType = require('./inputTypes/createUserInputType');
 const loginInputType = require('./inputTypes/loginInputType');
 const updateUserInputType = require('./inputTypes/updateUserInputType');
+const followUserInputType = require('./inputTypes/followUserInputType');
 
 const loginResultType = require('./types/loginResultType');
+const followType = require('./types/followType');
 const userType = require('./types/userType');
 const db = require('../models');
-const { createUser, updateUser } = require('../repository/users');
+const { createUser, updateUser, followUser } = require('../repository/users');
 
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
@@ -51,6 +53,17 @@ const mutationType = new GraphQLObjectType({
       },
       resolve: async (source, args, context) => {
         return updateUser(args.updateUserInput, context);
+      }
+    },
+    followUser: {
+      type: followType,
+      args: {
+        followInput: {
+          type: followUserInputType,
+        },
+      },
+      resolve: async (source, args, context) => {
+        return followUser(args.followInput, context);
       }
     }
   },

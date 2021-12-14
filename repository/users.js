@@ -59,6 +59,37 @@ module.exports.updateUser = async (args, context) => {
   }
 }
 
+// Follow User
+module.exports.followUser = async (args, context) => {
+  const { user } = context;
+  
+  if(!user) {
+    return null;
+  }
+
+  const userFollowing = user.id;
+  
+  const userFollowed = args.id;
+
+  var exists = db.Follow.findOne({ where: {userFollowing, userFollowed}});
+
+  if(exists.email){
+    return { token : "Allready following user"};
+  }
+  try {
+    await db.Follow.create({
+      userFollowing,
+      userFollowed,
+    });
+
+    return { token : "Successfully followed user "};
+
+  } catch (e) {
+    console.error(e);
+    return { token: "Error following user" };
+  }
+}
+
 // Nothing
 module.exports.deleteUser = (req, res) => {
   
