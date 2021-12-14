@@ -3,6 +3,12 @@ const { GraphQLInputObjectType, GraphQLNonNull, GraphQLString } = require("graph
 const createUserInputType = new GraphQLInputObjectType({
   name: 'CreateUserInput',
   fields: {
+    firstName: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    lastName: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
     email: {
       type: new GraphQLNonNull(GraphQLString),
     },
