@@ -1,4 +1,6 @@
 const db = require('../models');
+const Permissions = require('../config/permissions');
+const { defaultMaxListeners } = require('ws');
 
 module.exports.getAllUsers = async () => {
   try {
@@ -16,12 +18,14 @@ module.exports.getUserById = async (id) => {
 
 module.exports.createUser = async (args) => {
   const { email, password, firstName, lastName } = args;
+  var roleId = 0;
   try {
     const newUser = await db.User.create({
       email,
       password,
       firstName,
       lastName,
+      roleId,
     });
 
     return newUser;
@@ -35,14 +39,16 @@ module.exports.createUser = async (args) => {
 // Updated User
 module.exports.updateUser = async (args, context) => {
   const { user } = context;
-  
-  if(!user) {
-    return null;
-  }
 
   const { id } = user;
   
   const { email, firstName, lastName } = args;
+
+  const hasPermission = await user.can(Permissions.UPDATE_USER);
+  
+  if(!hasPermission) {
+    return null;
+  }
 
   try {
     await db.User.update({
@@ -72,8 +78,8 @@ module.exports.followUser = async (args, context) => {
   const userFollowed = args.id;
 
   var exists = await db.Follow.findOne({ where: {userFollowing, userFollowed}});
-  
-  if(exists != null){
+
+  if(exists){
     return { token : "Allready following user"};
   }
   try {
@@ -89,6 +95,38 @@ module.exports.followUser = async (args, context) => {
     return { token: "Error following user" };
   }
 }
+
+// Follow User
+module.exports.unfollowUser = async (args, context) => {
+  const { user } = context;
+  
+  if(!user) {
+    return null;
+  }
+
+  const userFollowing = user.id;
+  
+  const userFollowed = args.id;
+
+  var exists = await db.Follow.findOne({ where: {userFollowing, userFollowed}});
+
+  try{
+    if (exists.id){
+      await db.Follow.destroy({
+        where: {
+          userFollowing,
+          userFollowed
+        }
+      });
+      return { token : "User unfollowed"};
+    }
+    
+  }
+  catch(e){
+    return { token : "You are not following this user"};
+  }
+}
+
 
 // Nothing
 module.exports.deleteUser = (req, res) => {

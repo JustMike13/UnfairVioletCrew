@@ -1,17 +1,23 @@
 const { 
   GraphQLObjectType, GraphQLString, GraphQLNonNull
 } = require('graphql');
+
 const loginHandler = require('../repository/login');
+
 const createUserInputType = require('./inputTypes/createUserInputType');
 const loginInputType = require('./inputTypes/loginInputType');
 const updateUserInputType = require('./inputTypes/updateUserInputType');
+const createCommentInputType = require('./inputTypes/createCommentInputType');
 const followUserInputType = require('./inputTypes/followUserInputType');
 
 const loginResultType = require('./types/loginResultType');
-const followType = require('./types/followType');
 const userType = require('./types/userType');
-const db = require('../models');
-const { createUser, updateUser, followUser } = require('../repository/users');
+const commentType = require('./types/commentType');
+const followType = require('./types/followType');
+
+const { createUser, updateUser, followUser, unfollowUser } = require('../repository/users');
+const { createComment } = require('../repository/posts');
+const pubsub = require('../pubsub');
 
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
@@ -55,6 +61,30 @@ const mutationType = new GraphQLObjectType({
         return updateUser(args.updateUserInput, context);
       }
     },
+    createComment: {
+      type: commentType,
+      args: {
+        createCommentInput: {
+          type: createCommentInputType,
+        }
+      },
+      resolve: async (source, args, context) => {
+        const userId = context.user.id;
+
+        const comment = await createComment(
+          args.createCommentInput.postId, 
+          userId,
+          args.createCommentInput.body,
+        );
+
+        pubsub.publish('comments', {
+          postComments: {
+            comment: comment.toJSON(),
+          }
+        });
+        return comment;
+      }
+    },
     followUser: {
       type: followType,
       args: {
@@ -64,6 +94,17 @@ const mutationType = new GraphQLObjectType({
       },
       resolve: async (source, args, context) => {
         return followUser(args.followInput, context);
+      }
+    },
+    unfollowUser: {
+      type: followType,
+      args: {
+        followInput: {
+          type: followUserInputType,
+        },
+      },
+      resolve: async (source, args, context) => {
+        return unfollowUser(args.followInput, context);
       }
     }
   },
