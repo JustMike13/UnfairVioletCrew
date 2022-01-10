@@ -1,9 +1,33 @@
+const { defaultMaxListeners } = require('ws');
 const db = require('../models');
 
 module.exports.getAllPosts = async () => {
   try {
     const allPosts = await db.Post.findAll();
     return allPosts;
+  } catch (error) {
+    console.error('Something went wrong');
+    return null;
+  }
+}
+
+module.exports.myFeed = async ( context ) => {
+  const { user } = context;
+  const userFollowing = user.id;
+  var following = await db.Follow.findAll({ where: {userFollowing} })
+  var followingIds = [];
+  following.forEach(elem => followingIds.push(elem.userFollowed));
+
+  try {
+    const allPosts = await db.Post.findAll();
+    var feedPosts = [];
+    allPosts.forEach(elem => {
+      if(followingIds.includes(elem.userId)){
+        feedPosts.push(elem);
+      } 
+    });
+
+    return feedPosts;
   } catch (error) {
     console.error('Something went wrong');
     return null;

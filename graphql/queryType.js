@@ -10,7 +10,7 @@ const db = require('../models');
 const userType = require('./types/userType');
 const postType = require('./types/postType');
 const { getAllUsers, getUserById } = require('../repository/users');
-const { getAllPosts, getPostById } = require('../repository/posts');
+const { getAllPosts, getPostById, myFeed } = require('../repository/posts');
 const searchResultType = require('./types/searchResultType');
 const { search } = require('../repository/search');
 
@@ -49,6 +49,12 @@ const queryType = new GraphQLObjectType({
       },
       resolve: async (source, { id }) => {
         return getPostById(id);
+      }
+    },
+    myFeed: {
+      type: new GraphQLList(postType),
+      resolve: async (source, args, context) => {
+        return await myFeed(context);
       }
     },
     search: {
