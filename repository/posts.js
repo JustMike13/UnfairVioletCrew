@@ -34,6 +34,32 @@ module.exports.myFeed = async ( context ) => {
   }
 }
 
+
+module.exports.userProfile = async ( args ) => {
+  const myUserId = args.id;
+
+  try {
+    console.log("\n\n De aici");
+    console.log(myUserId);
+    const allPosts = await db.Post.findAll();
+    var profilePosts = [];
+    allPosts.forEach(elem => {
+      if(elem.userId == myUserId){
+        console.log("+1");
+        profilePosts.push(elem);
+      } 
+    });
+
+    console.log(profilePosts);
+    console.log("\n\n Pana aici");
+
+    return profilePosts;
+  } catch (error) {
+    console.error('Something went wrong');
+    return null;
+  }
+}
+
 module.exports.getPostById = async (id) => {
   const postId = parseInt(id);
   
