@@ -88,7 +88,7 @@ module.exports.followUser = async (args, context) => {
       userFollowed,
     });
 
-    return { token : "Successfully followed user "};
+    return await db.User.findByPk(userFollowed);
 
   } catch (e) {
     console.error(e);

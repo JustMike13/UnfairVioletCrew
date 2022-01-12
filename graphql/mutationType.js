@@ -11,6 +11,7 @@ const createCommentInputType = require('./inputTypes/createCommentInputType');
 const followUserInputType = require('./inputTypes/followUserInputType');
 const likePostInputType = require('./inputTypes/likePostInputType');
 
+const followResultType = require('./types/followResultType');
 const loginResultType = require('./types/loginResultType');
 const userType = require('./types/userType');
 const commentType = require('./types/commentType');
@@ -88,7 +89,7 @@ const mutationType = new GraphQLObjectType({
       }
     },
     followUser: {
-      type: followType,
+      type: followResultType,
       args: {
         followInput: {
           type: followUserInputType,
