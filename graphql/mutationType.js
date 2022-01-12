@@ -9,14 +9,16 @@ const loginInputType = require('./inputTypes/loginInputType');
 const updateUserInputType = require('./inputTypes/updateUserInputType');
 const createCommentInputType = require('./inputTypes/createCommentInputType');
 const followUserInputType = require('./inputTypes/followUserInputType');
+const likePostInputType = require('./inputTypes/likePostInputType');
 
 const loginResultType = require('./types/loginResultType');
 const userType = require('./types/userType');
 const commentType = require('./types/commentType');
 const followType = require('./types/followType');
+const likeType = require('./types/likeType');
 
 const { createUser, updateUser, followUser, unfollowUser } = require('../repository/users');
-const { createComment } = require('../repository/posts');
+const { createComment, likePost } = require('../repository/posts');
 const pubsub = require('../pubsub');
 
 const mutationType = new GraphQLObjectType({
@@ -105,6 +107,17 @@ const mutationType = new GraphQLObjectType({
       },
       resolve: async (source, args, context) => {
         return unfollowUser(args.followInput, context);
+      }
+    },
+    likePost: {
+      type: likeType,
+      args: {
+        likePostInput: {
+          type: likePostInputType,
+        }
+      },
+      resolve: async (source, args, context) => {
+        return likePost(args.likePostInput, context);
       }
     }
   },

@@ -160,3 +160,44 @@ module.exports.createComment = async (postId, userId, body) => {
     return null;
   }
 }
+
+module.exports.likePost = async (req, res) => {
+  const orgPostId = req.params.postId;
+  const orgUserId = req.params.userId;
+
+  try {
+    const user = await db.Post.findByPk(orgPostId);
+    
+    if(!user) {
+      throw new Error('Post not found');
+    }
+
+    try {
+      db.Like.findOne({ where: {userId : orgUserId , postId : orgPostId} })
+        .then(token => token !== null)
+        .then(isUnique => isUnique);
+      if(!isUnique) {
+        throw new Error("Deja ai dat like la aceasta postare!");
+      } 
+
+      const like = await db.Like.create({
+        userId, 
+        postId
+      }); 
+
+      const post = await db.Post.findByPk(postId);
+      return post;
+
+    } catch (error) {
+      console.log('error', error)
+      console.error('Something went wrong');
+      return null;
+    }
+
+  } catch (error) {
+    console.error(error);
+    res.send({
+      error: "Something went wrong",
+    });
+  }
+}
