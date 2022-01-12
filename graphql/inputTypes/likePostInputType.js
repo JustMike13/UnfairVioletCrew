@@ -5,10 +5,7 @@ const createCommentInputType = new GraphQLInputObjectType({
   fields: {
     postId: {
       type: new GraphQLNonNull(GraphQLInt),
-    },
-    userId: {
-        type: new GraphQLNonNull(GraphQLInt),
-      },
+    }
   }
 });
 

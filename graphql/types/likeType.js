@@ -7,16 +7,9 @@ const {
   
   module.exports = new GraphQLObjectType({
     name: 'Like',
-    fields: () => { 
-      const postType = require('./postType');
-
-      return {
-        post: {
-          type: postType,
-          resolve: async (source) => {
-            return await source.getPost();
-          }
-        }
+    fields: { 
+      token: {
+        type: GraphQLString
       }
     }
   });

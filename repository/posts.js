@@ -161,23 +161,25 @@ module.exports.createComment = async (postId, userId, body) => {
   }
 }
 
-module.exports.likePost = async (req, res) => {
-  const orgPostId = req.params.postId;
-  const orgUserId = req.params.userId;
+module.exports.likePost = async (args, context) => {
+  const orgPostId = args.postId;
 
+  const { user } = context;
+  const userId = user.id;
+  const postId = args.postId;
   try {
-    const user = await db.Post.findByPk(orgPostId);
+    //const user = await db.Post.findByPk(orgPostId);
     
     if(!user) {
-      throw new Error('Post not found');
+      return {token: "Post not found" };
+      
     }
 
     try {
-      db.Like.findOne({ where: {userId : orgUserId , postId : orgPostId} })
-        .then(token => token !== null)
-        .then(isUnique => isUnique);
-      if(!isUnique) {
-        throw new Error("Deja ai dat like la aceasta postare!");
+      const exists = await db.Like.findAll({ where: {userId, postId} })
+      console.log(exists.length);
+      if(exists.length > 0) {
+        return {token: "Deja ai dat like la aceasta postare!" };
       } 
 
       const like = await db.Like.create({
@@ -186,12 +188,12 @@ module.exports.likePost = async (req, res) => {
       }); 
 
       const post = await db.Post.findByPk(postId);
-      return post;
+      return {token: post.title };
 
     } catch (error) {
       console.log('error', error)
       console.error('Something went wrong');
-      return null;
+      return {token: 'Something went wrong' };
     }
 
   } catch (error) {
